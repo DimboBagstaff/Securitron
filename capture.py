@@ -1,5 +1,4 @@
 # capture.py
-__version__ = "1.0.0"
 
 import os
 import time
@@ -10,7 +9,7 @@ from pathlib import Path
 
 class camera():
     """Automatically collects frames and saves mp4 videos to data folder"""
-    def __init__(self, name, ip, port, username, password, channel, folder=None):
+    def __init__(self, name, ip, port, username, password, channel, folder=None, chatbot=None):
         self.name = name
         self.folder = Path("data") / (folder or self.name)
 
@@ -19,6 +18,8 @@ class camera():
         self.username = username
         self.password = password
         self.channel = channel
+        self.chatbot = chatbot
+        self.save_video = False
         
         self.cam = self.connect_camera()
         self.fourcc = cv2.VideoWriter_fourcc(*'mp4v')
@@ -42,6 +43,16 @@ class camera():
                     self.frames.append(frame)
                 
             time.sleep(interval)
+
+    def send_message(self, message):
+        if self.chatbot is not None:
+            self.chatbot.message(message)
+
+    def send_photo(self, photo):
+        if self.chatbot is not None:
+            photoBytes = cv2.imencode('.png', photo)[1].tobytes()
+            res = self.chatbot.photo(photoBytes)
+            print(res)
 
     def connect_camera(self):
         """Connect to camera using class parameters"""
@@ -77,6 +88,7 @@ class camera():
 
         # If hit -> save frame (with bounding boxes)
         cv2.imwrite(fpath, image)
+        # self.send_photo(image)
         # print(f"Saved frame to {fpath}")
 
     def run_inference_loop(self, interval=3):
@@ -92,6 +104,9 @@ class camera():
     def create_vibeo(self, timestamp):
         """Save the current frames into an mp4 video"""
 
+        if not self.save_video: 
+            return None
+        
         fname = self.get_filename(timestamp, ext=".mp4")
         print(f"Creating video... {fname}")
 
