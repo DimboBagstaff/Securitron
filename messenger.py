@@ -1,3 +1,8 @@
+# messenger.py
+
+import os
+import sys
+import time
 import requests
 import datetime
 import json
@@ -30,10 +35,8 @@ class telebot():
         self.command_timestamp = None
         print("*beep boop* Initialized telegram robit *beep boop*")
 
-        # self.message(f"Online @ {datetime.datetime.now().strftime('%H:%M:%S %d/%m/%y')}")
-
-        # Check messages to ignore existing messages
-        self.command("-check_messages", execute=True)
+        self.message(f"Online @ {datetime.datetime.now().strftime('%H:%M:%S %d/%m/%y')}")
+        self.check_messages(execute=False)
 
     def message(self, message):
         """Send a text message"""
@@ -41,7 +44,7 @@ class telebot():
         url = f"https://api.telegram.org/bot{self.ID}/sendMessage"
         print("Sending message:", message)
         payload = {
-            "chat_id": self.chat_ID,
+            "chat_id": self.admin_ID,
             "text": message
         }
         response = requests.post(url, json=payload)
@@ -77,41 +80,70 @@ class telebot():
 
         response = requests.get(url, data=payload)
         content = json.loads(response.content)
-        results =  content.get("results")
+        results =  content.get("result")
+        new_timestamps = []
 
         for update in results:
             message = update.get("message", {})
-            if message is not None:
+            if message.get("date"):
+                date = int(message.get("date"))
+                new_timestamps.append(date)
+                if self.command_timestamp is not None:
+                    if date <= self.command_timestamp:
+                        continue
+
                 msg_txt = message.get("text")
-                if msg_txt and execute:
-                    self.command(msg_txt)
-                else:
-                    self.log("Not executing: " + msg_txt)
+                if msg_txt:
+                    if execute:
+                        self.command(msg_txt)
+                    # else:
+                    #     self.log("Not executing: " + msg_txt)
 
-
-        print(response.json())
-
-        # for message in messages...
+        self.command_timestamp = max(new_timestamps)
 
     def log(self, stuff):
-        print(stuff)
+        self.message(stuff)
     
     def command(self, cmd_txt, ts=None):
         """Execute command"""
 
         self.log((cmd_txt, ts))
 
-        if cmd_txt[0] == "-":
-            cmd, *args = cmd_txt[1:].split(" ")
-            if args:
-                cmd = getattr(self, cmd)(args)
-            else:
-                cmd = getattr(self, cmd)()
+        try:
+            if cmd_txt[0] == "-":
+                cmd, *args = cmd_txt[1:].split(" ")
+                if hasattr(self, cmd):
+                    if args:
+                        result = getattr(self, cmd)(args)
+                    else:
+                        result = getattr(self, cmd)()
+                else:
+                    result = f"Unknown command: {cmd}"
 
-        # try:
-
-        # except Exception as e:
+                if result:
+                    self.log(result)
+        except Exception as e:
+            print(str(e))
+            self.message(f"Error processing command: {cmd}\nError: {e}")
 
     def help(self):
-        print(HELPTXT)
-        # self.message(HELPTXT)
+        self.message(HELPTXT)
+
+    def restart(self):
+        self.message("Restarting application")
+        time.sleep(1)
+        sys.exit()
+
+    def status(self):
+        self.message("I'm online")
+
+    def reboot(self):
+        self.message("Rebooting")
+        time.sleep(1)
+        os.system("sudo shutdown now -r")
+
+    def pull(self):
+        self.message(f"Pulling in {os.getcwd()}")
+        # response = os.system("git pull")
+        response = os.system("pwd")
+        self.message(str(response))
