@@ -112,7 +112,7 @@ class camera():
         subfolder = self.folder / timestamp.strftime("%Y%m%d") / timestamp.strftime(f"%H")
         os.makedirs(subfolder, exist_ok=True)
 
-        fpath = subfolder / timestamp.strftime(f"{self.name} %Y%m%d_%Hh%Mm%Ss{ext}")
+        fpath = subfolder / timestamp.strftime(f"{self.name}_%Y%m%d_%Hh%Mm%Ss{ext}")
         return fpath
 
     def process_frame(self, timestamp):

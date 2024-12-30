@@ -7,6 +7,7 @@ import requests
 import datetime
 import json
 
+import cv2
 import threading
 
 DEBUG = True
@@ -152,6 +153,17 @@ class telebot():
         self.message("Restarting application")
         time.sleep(1)
         os._exit(1)
+
+    def test_frame(self):
+        self.message("Trying to send a photo...")
+        for p,d,files in os.walk(os.getcwd()):
+            for f in files:
+                if f.split(".")[-1] == "png":
+                    img_path = os.path.join(p,f)
+                    img = cv2.imread(img_path)
+                    self.photo(img)
+                    return True
+        return False
 
     def status(self):
         self.message("I'm online")
