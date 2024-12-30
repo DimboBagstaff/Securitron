@@ -23,11 +23,14 @@ Functionality
 Commands:
 - help: list all commands
 - reboot: restart pi
-- addcam: add camera details
-- delcam: delete camera details
 - pull: pull updates from github repo
+- oscmd: execute arguments in os.system()
+
+TODO:
 - exec: execute command text in python
 - status: post status of pi, storage details
+- addcam: add camera details
+- delcam: delete camera details
 """
 
 class telebot():
@@ -177,3 +180,6 @@ class telebot():
         self.message(f"Pulling in {os.getcwd()}")
         response = os.system("git pull")
         self.message(str(response))
+
+    def oscmd(self, args):
+        os.system(" ".join(args))
