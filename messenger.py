@@ -151,7 +151,8 @@ class telebot():
     def restart(self):
         self.message("Restarting application")
         time.sleep(1)
-        sys.exit()
+        # sys.exit()
+        os._exit()
 
     def status(self):
         self.message("I'm online")
