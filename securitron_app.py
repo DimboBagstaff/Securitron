@@ -8,15 +8,15 @@ import dotenv
 
 dotenv.load_dotenv(override=True)
 
-print("=== Running Securitron ===")
-
-chatbot = telebot(
-    os.environ.get("BOT_TOKEN"), 
-    os.environ.get("CHAT_ID"), 
-    os.environ.get("ADMIN_ID")
-    )
-
 if __name__ == "__main__":
+
+    print("=== Running Securitron ===")
+
+    chatbot = telebot(
+        os.environ.get("BOT_TOKEN"), 
+        os.environ.get("CHAT_ID"), 
+        os.environ.get("ADMIN_ID")
+        )
 
     drivecam = camera(
         name="drivecam",

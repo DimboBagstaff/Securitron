@@ -7,6 +7,8 @@ import requests
 import datetime
 import json
 
+import threading
+
 DEBUG = True
 
 HELPTXT = """
@@ -28,15 +30,28 @@ Commands:
 """
 
 class telebot():
-    def __init__(self, ID, chat_ID=None, admin_ID=None):
+    def __init__(self, ID, chat_ID=None, admin_ID=None, check_interval=10):
         self.ID = ID
         self.chat_ID = chat_ID
         self.admin_ID = admin_ID or chat_ID
         self.command_timestamp = None
+        self.check_interval = check_interval
         print("*beep boop* Initialized telegram robit *beep boop*")
 
         self.message(f"Online @ {datetime.datetime.now().strftime('%H:%M:%S %d/%m/%y')}")
         self.check_messages(execute=False)
+
+        threading.Thread(target=self.check_loop, daemon=True).start()
+
+    def check_loop(self):
+        """Check for messages every check_interval"""
+
+        interval = (time.time() // self.check_interval) 
+        while True:
+            self.check_messages()
+            interval += 1
+            time.sleep((interval * self.check_interval) - time.time())
+
 
     def message(self, message):
         """Send a text message"""
@@ -57,7 +72,7 @@ class telebot():
         url = f"https://api.telegram.org/bot{self.ID}/sendPhoto"
         print("Sending photo")
         payload = {
-            "chat_id": self.chat_ID,
+            "chat_id": self.admin_ID,
         }
         files = {'photo': photo}
 
@@ -73,7 +88,6 @@ class telebot():
             chat_ID = self.admin_ID
         
         url = f"https://api.telegram.org/bot{self.ID}/getUpdates"
-        print("Reading messages")
         payload = {
             "chat_id": self.chat_ID,
         }
@@ -99,7 +113,12 @@ class telebot():
                     # else:
                     #     self.log("Not executing: " + msg_txt)
 
-        self.command_timestamp = max(new_timestamps)
+        if len(new_timestamps) > 0:
+            if (
+            (self.command_timestamp is None) or
+            (max(new_timestamps) > self.command_timestamp)
+            ):
+                self.command_timestamp = max(new_timestamps)
 
     def log(self, stuff):
         self.message(stuff)
