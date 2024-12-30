@@ -151,8 +151,7 @@ class telebot():
     def restart(self):
         self.message("Restarting application")
         time.sleep(1)
-        # sys.exit()
-        os._exit()
+        os._exit(1)
 
     def status(self):
         self.message("I'm online")
@@ -164,6 +163,5 @@ class telebot():
 
     def pull(self):
         self.message(f"Pulling in {os.getcwd()}")
-        # response = os.system("git pull")
-        response = os.system("pwd")
+        response = os.system("git pull")
         self.message(str(response))
