@@ -134,7 +134,7 @@ class camera():
             print(f"Image change: {diff}")
             if diff > self.sensitivity:
                 # If hit -> save frame (with bounding boxes ideally...)
-                self.send_photo(image)
+                self.send_photo(new_frame)
 
                 if self.save_images: 
                     cv2.imwrite(fpath, image)
