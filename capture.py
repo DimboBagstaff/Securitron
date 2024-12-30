@@ -26,7 +26,7 @@ class camera():
 
         self.save_video = True
         self.save_images = True
-        self.cleanup_interval = 10
+        self.cleanup_interval = 3600
         
         self.cam = self.connect_camera()
         self.fourcc = cv2.VideoWriter_fourcc(*'mp4v')
@@ -77,9 +77,9 @@ class camera():
 
         interval = (time.time() // self.cleanup_interval) 
         while True:
-            delete_folders = [f for f in os.listdir(self.folder)[:-max_folders]]
+            delete_folders = sorted([f for f in os.listdir(self.folder)])
 
-            for f in delete_folders:
+            for f in delete_folders[:-max_folders]:
                 print(f"Deleting folder {self.folder / f}")
                 shutil.rmtree(self.folder / f)
             interval += 1
@@ -109,10 +109,10 @@ class camera():
         if timestamp is None:
             timestamp = datetime.now()
 
-        subfolder = self.folder / timestamp.strftime("%d%m%Y") / timestamp.strftime(f"%H")
+        subfolder = self.folder / timestamp.strftime("%Y%m%d") / timestamp.strftime(f"%H")
         os.makedirs(subfolder, exist_ok=True)
 
-        fpath = subfolder / timestamp.strftime(f"{self.name} %d%m%Y_%Hh%Mm%Ss{ext}")
+        fpath = subfolder / timestamp.strftime(f"{self.name} %Y%m%d_%Hh%Mm%Ss{ext}")
         return fpath
 
     def process_frame(self, timestamp):
@@ -136,11 +136,11 @@ class camera():
             #     # If hit -> save frame (with bounding boxes)
             #     self.send_photo(image)
 
-        self.previous_frame = new_frame
+            if self.save_images: 
+                cv2.imwrite(fpath, image)
+                print(f"Saved frame to {fpath}")
 
-        if self.save_images: 
-            cv2.imwrite(fpath, image)
-            print(f"Saved frame to {fpath}")
+        self.previous_frame = new_frame
 
     def create_vibeo(self, timestamp):
         """Save the current frames into an mp4 video"""
