@@ -30,7 +30,7 @@ Commands:
 """
 
 class telebot():
-    def __init__(self, ID, chat_ID=None, admin_ID=None, check_interval=10):
+    def __init__(self, ID, chat_ID=None, admin_ID=None, check_interval=3):
         self.ID = ID
         self.chat_ID = chat_ID
         self.admin_ID = admin_ID or chat_ID
