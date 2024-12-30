@@ -5,6 +5,7 @@ from messenger import telebot
 
 import os
 import dotenv
+import time
 
 dotenv.load_dotenv(override=True)
 
@@ -28,7 +29,7 @@ if __name__ == "__main__":
         chatbot=chatbot,
 
         sensitivity=0.2,
-        inference_interval=10,
+        inference_interval=3,
     )
 
     # doorcam = camera(
@@ -43,3 +44,10 @@ if __name__ == "__main__":
     #     sensitivity=0.2,
     #     inference_interval=60,
     # )
+
+    # Keep the main program running
+    try:
+        while True:
+            time.sleep(1000)
+    except KeyboardInterrupt:
+        print("\nExiting program.")

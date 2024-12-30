@@ -13,7 +13,7 @@ from inference import *
 class camera():
     """Automatically collects frames and saves mp4 videos to data folder"""
     def __init__(self, name, ip, port, username, password, channel, folder=None, 
-                 chatbot=None, sensitivity=0.2, inference_interval=10, video_duration=60):
+                 chatbot=None, sensitivity=0.2, inference_interval=3, video_duration=60):
         self.name = name
         self.folder = Path("data") / (folder or self.name)
 
@@ -132,13 +132,13 @@ class camera():
             )
 
             print(f"Image change: {diff}")
-            # if diff > self.sensitivity:
-            #     # If hit -> save frame (with bounding boxes)
-            #     self.send_photo(image)
+            if diff > self.sensitivity:
+                # If hit -> save frame (with bounding boxes ideally...)
+                self.send_photo(image)
 
-            if self.save_images: 
-                cv2.imwrite(fpath, image)
-                print(f"Saved frame to {fpath}")
+                if self.save_images: 
+                    cv2.imwrite(fpath, image)
+                    print(f"Saved frame to {fpath}")
 
         self.previous_frame = new_frame
 
